@@ -38,10 +38,21 @@ function calculateGapAndDirection(node: SceneNode) {
   const abs = node.absoluteTransform;
   const x = abs[0][2], y = abs[1][2];
   const outer = getOutermostFrame(node);
-  const leftBound = outer ? outer.absoluteTransform[0][2] : 0;
-  const topBound = outer ? outer.absoluteTransform[1][2] : 0;
-  const rightBound = outer ? leftBound + outer.width : figma.currentPage.width;
-  const bottomBound = outer ? topBound + outer.height : figma.currentPage.height;
+
+  let leftBound, topBound, rightBound, bottomBound;
+  if (outer) {
+    leftBound = outer.absoluteTransform[0][2];
+    topBound = outer.absoluteTransform[1][2];
+    rightBound = leftBound + outer.width;
+    bottomBound = topBound + outer.height;
+  } else {
+    // 沒有 frame 父層時，直接用 icon 自己的邊界
+    leftBound = x;
+    topBound = y;
+    rightBound = x + node.width;
+    bottomBound = y + node.height;
+  }
+
   const gapLeft = x - leftBound;
   const gapRight = rightBound - (x + node.width);
   const gapTop = y - topBound;
