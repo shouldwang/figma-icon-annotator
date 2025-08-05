@@ -33,6 +33,33 @@ function getOutermostFrame(node: SceneNode): FrameNode | null {
 
 type Direction = 'left' | 'right' | 'top' | 'bottom';
 
+// 檢查節點及其子節點是否有漸層色或圖片 fill
+function hasGradientOrImageFill(node: SceneNode): boolean {
+  // 檢查當前節點的 fills
+  if ('fills' in node && node.fills && Array.isArray(node.fills)) {
+    for (const fill of node.fills) {
+      if (fill.type === 'GRADIENT_LINEAR' || 
+          fill.type === 'GRADIENT_RADIAL' || 
+          fill.type === 'GRADIENT_ANGULAR' || 
+          fill.type === 'GRADIENT_DIAMOND' ||
+          fill.type === 'IMAGE') {
+        return true;
+      }
+    }
+  }
+  
+  // 遞歸檢查子節點
+  if ('children' in node && node.children) {
+    for (const child of node.children) {
+      if (hasGradientOrImageFill(child as SceneNode)) {
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
 // 計算 gap 與方向
 function calculateGapAndDirection(node: SceneNode) {
   const abs = node.absoluteTransform;
@@ -196,8 +223,12 @@ async function main() {
 
       const uuid = `${Date.now()}${Math.floor(Math.random() * 10000)}`;
 
+      // 檢查是否需要顯示 PNG 或 SVG
+      const fileFormat = hasGradientOrImageFill(icon) ? 'PNG' : 'SVG';
+
       // --- Create labelFrame ---
       const labelFrame = figma.createFrame();
+      labelFrame.name = 'Label';
       labelFrame.layoutMode = 'HORIZONTAL';
       labelFrame.primaryAxisSizingMode = 'AUTO';
       labelFrame.counterAxisSizingMode = 'AUTO';
@@ -209,8 +240,34 @@ async function main() {
       labelFrame.strokeWeight = 2;
       labelFrame.primaryAxisAlignItems = 'CENTER';
       labelFrame.counterAxisAlignItems = 'CENTER';
+      labelFrame.itemSpacing = 4;
+      
+      // 建立 tag
+      const tagFrame = figma.createFrame();
+      tagFrame.name = 'file format';
+      tagFrame.layoutMode = 'HORIZONTAL';
+      tagFrame.primaryAxisSizingMode = 'AUTO';
+      tagFrame.counterAxisSizingMode = 'AUTO';
+      tagFrame.paddingLeft = 6; tagFrame.paddingRight = 6;
+      tagFrame.paddingTop = 2; tagFrame.paddingBottom = 2;
+      tagFrame.cornerRadius = 1;
+      tagFrame.fills = [{ type: 'SOLID', color: { r: 0.3, g: 0.67, b: 0.4 } }];
+      tagFrame.primaryAxisAlignItems = 'CENTER';
+      tagFrame.counterAxisAlignItems = 'CENTER';
+      
+      const tagText = figma.createText();
+      tagText.fontName = { family: 'DM Mono', style: 'Medium' };
+      tagText.fontSize = 12;
+      tagText.lineHeight = { value: 12, unit: 'PIXELS' };
+      tagText.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+      tagText.characters = fileFormat;
+      tagFrame.appendChild(tagText);
+      labelFrame.appendChild(tagFrame);
+      
+      // 建立主要文字
       const text = figma.createText();
       text.fontName = { family: 'DM Mono', style: 'Medium' };
+      text.name = 'icon-name';
       text.fontSize = 16;
       text.characters = originalName;
       labelFrame.appendChild(text);
