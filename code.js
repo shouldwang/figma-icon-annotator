@@ -57,6 +57,21 @@ function hasGradientOrImageFill(node) {
             }
         }
     }
+    // 檢查當前節點的 effects
+    if ('effects' in node && node.effects && Array.isArray(node.effects)) {
+        for (const effect of node.effects) {
+            if (effect.visible !== false &&
+                (effect.type === 'DROP_SHADOW' ||
+                    effect.type === 'INNER_SHADOW' ||
+                    effect.type === 'LAYER_BLUR' ||
+                    effect.type === 'BACKGROUND_BLUR' ||
+                    effect.type === 'NOISE' ||
+                    effect.type === 'TEXTURE' ||
+                    effect.type === 'GLASS')) {
+                return true;
+            }
+        }
+    }
     // 遞歸檢查子節點
     if ('children' in node && node.children) {
         for (const child of node.children) {
@@ -188,6 +203,185 @@ function createAnnotationGroup(node, labelFrame, uuid) {
     wrapper.setPluginData("uuid", uuid);
     return wrapper;
 }
+// 建立 GUI Style Guide Card
+function createGuiStyleGuideCard(node) {
+    // 記錄原始位置
+    const originalX = node.x;
+    const originalY = node.y;
+    // 2. File Format Tag
+    const fileFormat = hasGradientOrImageFill(node) ? 'PNG' : 'SVG';
+    const themeColor = fileFormat === 'PNG' ? { r: 0.996, g: 0.635, b: 0.137 } : { r: 0.32, g: 0.67, b: 0.40 };
+    // 建立主要的 Card Frame
+    const card = figma.createFrame();
+    card.name = "Card";
+    card.layoutMode = "VERTICAL";
+    card.primaryAxisSizingMode = "AUTO";
+    card.counterAxisSizingMode = "AUTO";
+    card.paddingLeft = 32;
+    card.paddingRight = 32;
+    card.paddingTop = 32;
+    card.paddingBottom = 32;
+    card.itemSpacing = 16;
+    card.primaryAxisAlignItems = "MIN";
+    card.counterAxisAlignItems = "MIN";
+    // 背景色和邊框
+    card.fills = [{ type: 'SOLID', color: themeColor, opacity: 0.2 }];
+    card.strokes = [{ type: 'SOLID', color: themeColor }];
+    card.strokeWeight = 4;
+    card.dashPattern = [32];
+    // 1. Icon Container
+    const iconContainer = figma.createFrame();
+    iconContainer.name = "icon_container";
+    iconContainer.layoutMode = "HORIZONTAL";
+    iconContainer.primaryAxisSizingMode = "AUTO";
+    iconContainer.counterAxisSizingMode = "AUTO";
+    iconContainer.minWidth = 512;
+    iconContainer.minHeight = 512;
+    iconContainer.primaryAxisAlignItems = "CENTER";
+    iconContainer.counterAxisAlignItems = "CENTER";
+    iconContainer.fills = [];
+    // 直接把選取的物件放進 container 中
+    iconContainer.appendChild(node);
+    card.appendChild(iconContainer);
+    const formatTag = figma.createFrame();
+    formatTag.name = "file_format";
+    formatTag.layoutMode = "HORIZONTAL";
+    formatTag.primaryAxisSizingMode = "AUTO";
+    formatTag.counterAxisSizingMode = "AUTO";
+    formatTag.paddingLeft = 6;
+    formatTag.paddingRight = 6;
+    formatTag.paddingTop = 2;
+    formatTag.paddingBottom = 2;
+    formatTag.cornerRadius = 1;
+    formatTag.fills = [{ type: 'SOLID', color: themeColor }];
+    formatTag.primaryAxisAlignItems = "CENTER";
+    formatTag.counterAxisAlignItems = "CENTER";
+    const formatText = figma.createText();
+    formatText.fontName = { family: 'DM Mono', style: 'Medium' };
+    formatText.fontSize = 24;
+    formatText.lineHeight = { value: 100, unit: 'PERCENT' };
+    formatText.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+    formatText.characters = fileFormat;
+    formatTag.appendChild(formatText);
+    card.appendChild(formatTag);
+    // 3. Icon Name
+    const iconNameText = figma.createText();
+    iconNameText.name = "icon_name";
+    iconNameText.fontName = { family: 'DM Mono', style: 'Medium' };
+    iconNameText.fontSize = 24;
+    iconNameText.lineHeight = { value: 120, unit: 'PERCENT' };
+    iconNameText.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }];
+    iconNameText.characters = node.name;
+    card.appendChild(iconNameText);
+    // 4. Usage Description
+    const usageText = figma.createText();
+    usageText.name = "usage_desc";
+    usageText.fontName = { family: 'DM Mono', style: 'Regular' };
+    usageText.fontSize = 24;
+    usageText.lineHeight = { value: 120, unit: 'PERCENT' };
+    usageText.fills = [{ type: 'SOLID', color: { r: 0.47, g: 0.47, b: 0.47 } }];
+    // 檢查是否為 component 並且有 description
+    let usageDescription = "Please add the usage description...";
+    if (node.type === 'COMPONENT' && node.description && node.description.trim() !== '') {
+        usageDescription = node.description;
+    }
+    usageText.characters = usageDescription;
+    card.appendChild(usageText);
+    // Set layout properties after adding to auto-layout frame
+    iconNameText.layoutSizingHorizontal = "FILL";
+    iconNameText.layoutSizingVertical = "HUG";
+    usageText.layoutSizingHorizontal = "FILL";
+    usageText.layoutSizingVertical = "HUG";
+    // 包裝成 group
+    const wrapper = figma.group([card], figma.currentPage);
+    wrapper.name = "Icon Style Guide";
+    // 設定 wrapper 位置為原始物件的位置
+    wrapper.x = originalX;
+    wrapper.y = originalY;
+    return wrapper;
+}
+// 建立 Icon Style Guide Card
+function createIconStyleGuideCard(node) {
+    // 記錄原始位置
+    const originalX = node.x;
+    const originalY = node.y;
+    // 2. File Format Tag
+    const fileFormat = hasGradientOrImageFill(node) ? 'PNG' : 'SVG';
+    const themeColor = fileFormat === 'PNG' ? { r: 0.996, g: 0.635, b: 0.137 } : { r: 0.32, g: 0.67, b: 0.40 };
+    // 建立主要的 Card Frame
+    const card = figma.createFrame();
+    card.name = "Card";
+    card.layoutMode = "HORIZONTAL";
+    card.primaryAxisSizingMode = "AUTO";
+    card.counterAxisSizingMode = "AUTO";
+    card.paddingLeft = 8;
+    card.paddingRight = 24;
+    card.paddingTop = 8;
+    card.paddingBottom = 8;
+    card.itemSpacing = 16;
+    card.primaryAxisAlignItems = "CENTER";
+    card.counterAxisAlignItems = "CENTER";
+    card.cornerRadius = 16;
+    // 背景色和邊框
+    card.fills = [{ type: 'SOLID', color: themeColor, opacity: 0.2 }];
+    card.strokes = [{ type: 'SOLID', color: themeColor }];
+    card.strokeWeight = 2;
+    card.dashPattern = [8];
+    // 1. Icon Container
+    const iconContainer = figma.createFrame();
+    iconContainer.name = "icon_container";
+    iconContainer.layoutMode = "HORIZONTAL";
+    iconContainer.primaryAxisSizingMode = "AUTO";
+    iconContainer.counterAxisSizingMode = "AUTO";
+    iconContainer.minWidth = 48;
+    iconContainer.minHeight = 48;
+    iconContainer.primaryAxisAlignItems = "CENTER";
+    iconContainer.counterAxisAlignItems = "CENTER";
+    iconContainer.fills = [];
+    // 直接把選取的物件放進 container 中
+    iconContainer.appendChild(node);
+    card.appendChild(iconContainer);
+    const formatTag = figma.createFrame();
+    formatTag.name = "file_format";
+    formatTag.layoutMode = "HORIZONTAL";
+    formatTag.primaryAxisSizingMode = "AUTO";
+    formatTag.counterAxisSizingMode = "AUTO";
+    formatTag.paddingLeft = 6;
+    formatTag.paddingRight = 6;
+    formatTag.paddingTop = 2;
+    formatTag.paddingBottom = 2;
+    formatTag.cornerRadius = 1;
+    formatTag.fills = [{ type: 'SOLID', color: themeColor }];
+    formatTag.primaryAxisAlignItems = "CENTER";
+    formatTag.counterAxisAlignItems = "CENTER";
+    const formatText = figma.createText();
+    formatText.fontName = { family: 'DM Mono', style: 'Medium' };
+    formatText.fontSize = 12;
+    formatText.lineHeight = { value: 100, unit: 'PERCENT' };
+    formatText.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+    formatText.characters = fileFormat;
+    formatTag.appendChild(formatText);
+    card.appendChild(formatTag);
+    // 3. Icon Name
+    const iconNameText = figma.createText();
+    iconNameText.name = "icon_name";
+    iconNameText.fontName = { family: 'DM Mono', style: 'Medium' };
+    iconNameText.fontSize = 16;
+    iconNameText.lineHeight = { value: 120, unit: 'PERCENT' };
+    iconNameText.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }];
+    iconNameText.characters = node.name;
+    card.appendChild(iconNameText);
+    // Set layout properties after adding to auto-layout frame
+    iconNameText.layoutSizingHorizontal = "HUG";
+    iconNameText.layoutSizingVertical = "HUG";
+    // 包裝成 group
+    const wrapper = figma.group([card], figma.currentPage);
+    wrapper.name = "Icon Style Guide";
+    // 設定 wrapper 位置為原始物件的位置
+    wrapper.x = originalX;
+    wrapper.y = originalY;
+    return wrapper;
+}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const command = figma.command;
@@ -300,6 +494,38 @@ function main() {
             figma.currentPage.appendChild(mainGroup);
             figma.currentPage.selection = wrappers;
             figma.closePlugin('Annotated icons successfully.');
+        }
+        else if (command === 'create-gui-style-guide') {
+            const selection = figma.currentPage.selection;
+            if (!selection.length) {
+                figma.closePlugin('Please select one or more objects.');
+                return;
+            }
+            yield figma.loadFontAsync({ family: 'DM Mono', style: 'Medium' });
+            yield figma.loadFontAsync({ family: 'DM Mono', style: 'Regular' });
+            const styleGuides = [];
+            for (const node of selection) {
+                const styleGuide = createGuiStyleGuideCard(node);
+                styleGuides.push(styleGuide);
+            }
+            figma.currentPage.selection = styleGuides;
+            figma.closePlugin(`Created ${styleGuides.length} style guide card(s) successfully.`);
+        }
+        else if (command === 'create-icon-style-guide') {
+            const selection = figma.currentPage.selection;
+            if (!selection.length) {
+                figma.closePlugin('Please select one or more objects.');
+                return;
+            }
+            yield figma.loadFontAsync({ family: 'DM Mono', style: 'Medium' });
+            yield figma.loadFontAsync({ family: 'DM Mono', style: 'Regular' });
+            const styleGuides = [];
+            for (const node of selection) {
+                const styleGuide = createIconStyleGuideCard(node);
+                styleGuides.push(styleGuide);
+            }
+            figma.currentPage.selection = styleGuides;
+            figma.closePlugin(`Created ${styleGuides.length} style guide card(s) successfully.`);
         }
         else if (command === 'realign') {
             let mainGroup = yield getMainGroup();
