@@ -1,14 +1,5 @@
-# Codex Adapter
+# Repo Entry
 
-This Codex environment uses the shared dotfiles agent core.
+This repository uses a repo-local `.agent/` stack.
 
-Read this order:
-
-1. `/Users/shouldwang/Documents/GitHub/dotfiles/agent/AGENTS.md`
-2. The files listed in that map
-
-Codex-specific notes:
-
-- Codex hook wiring lives in `adapters/codex/hooks.json`.
-- Shared side effects live in `/Users/shouldwang/Documents/GitHub/dotfiles/agent/scripts/`.
-- This adapter exists only to bridge Codex into the shared agent core.
+See `.agent/AGENTS.md` for the full read order, memory layers, protocols, and rules.
