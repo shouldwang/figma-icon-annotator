@@ -1,0 +1,24 @@
+[project]
+type = "git-dev"
+phase = "dev"
+
+[commands]
+dev = "npm run watch"
+format = ""
+lint = "npm run lint"
+typecheck = "npm run build"
+test = ""
+test_changed = ""
+deploy = ""
+
+[paths]
+key_dirs = ["."]
+high_risk = ["code.ts", "manifest.json"]
+dependency_files = ["package.json"]
+lockfiles = []
+spec_dirs = []
+
+[features]
+memory_capture = true
+rpi_enforced = "complex-only"
+max_episodic_entries = 50
