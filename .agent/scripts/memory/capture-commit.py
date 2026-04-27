@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/bin/sh
+"exec" "$(command -v python3.13 || command -v python3.12 || command -v python3.11 || command -v python3)" "$0" "$@"
 
 import json
 import subprocess

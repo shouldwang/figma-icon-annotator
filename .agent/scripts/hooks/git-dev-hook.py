@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/bin/sh
+"exec" "$(command -v python3.13 || command -v python3.12 || command -v python3.11 || command -v python3)" "$0" "$@"
 from __future__ import annotations
 
 import json
@@ -575,7 +576,7 @@ def run_session_start(root: Path, manifest: dict) -> int:
     elif phase == "deploy":
         lines.append("[git-dev] deploy 階段：任何任務均強制 RPI，請先寫 Research receipt 再編輯")
 
-    return emit_message("\n".join(lines), "SessionStart")
+    return emit_message("\n".join(lines))
 
 
 def run_post_edit(root: Path, manifest: dict) -> int:
@@ -671,7 +672,7 @@ def run_session_stop(root: Path, manifest: dict) -> int:
         f"下一個 verify 建議：{verify_text}",
         f"RPI：{rpi_text}",
     ])
-    return emit_message(message, "Stop")
+    return emit_message(message)
 
 
 def run_write_receipt(root: Path, manifest: dict) -> int:
