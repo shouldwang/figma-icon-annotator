@@ -1,6 +1,7 @@
 [project]
 type = "git-dev"
 phase = "dev"
+dotfiles_dir = "__DOTFILES_DIR__"
 
 [commands]
 dev = "npm run watch"
@@ -22,3 +23,4 @@ spec_dirs = []
 memory_capture = true
 rpi_enforced = "complex-only"
 max_episodic_entries = 50
+branch_required = true

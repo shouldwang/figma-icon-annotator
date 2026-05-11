@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+DOTFILES_DIR="$(awk -F'"' '/^dotfiles_dir/{print $2}' "$REPO_ROOT/.agent/project.toml")"
 
-exec python3 "$SCRIPT_DIR/git-dev-hook.py" post-edit
+exec bash "$DOTFILES_DIR/agent/scripts/project-types/git-dev/post-edit.sh"
