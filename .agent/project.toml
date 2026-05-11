@@ -1,7 +1,7 @@
 [project]
 type = "git-dev"
 phase = "dev"
-dotfiles_dir = "__DOTFILES_DIR__"
+dotfiles_dir = "/Users/shouldwang/Documents/GitHub/dotfiles"
 
 [commands]
 dev = "npm run watch"
