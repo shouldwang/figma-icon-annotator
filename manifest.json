@@ -11,8 +11,15 @@
     {
       "name": " 🔄 Re-align Annotations",
       "command": "realign"
+    },
+    {
+      "name": "🎨 Create GUI Style Guide",
+      "command": "create-gui-style-guide"
+    },
+    {
+      "name": "🎨 Create Icon Style Guide",
+      "command": "create-icon-style-guide"
     }
-
   ],
   "capabilities": [],
   "enableProposedApi": false,
