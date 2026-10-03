@@ -45,5 +45,35 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Bash(ls:*)",
+      "Bash(echo:*)",
+      "Bash(cat:*)",
+      "Bash(pwd:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(python3:*)",
+      "Bash(render-agent-adapters:*)",
+      "Bash(sync-agent-projects sync:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
+    ],
+    "ask": [
+      "Bash(git push:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(/**/*.pem)",
+      "Bash(rm -rf *)"
+    ]
   }
 }
